@@ -6,20 +6,18 @@
     <title>Capitano - Order Online</title>
     <style>
         :root { 
-            --primary: #1976d2; /* Professional blue from your image */
+            --primary: #1976d2; 
             --background: #fdfdfd; 
             --text: #333; 
-            --accent: #e67e22; /* Classic pizza orange for details */
-            --off: #bdc3c7; /* Color for sold out items */
+            --accent: #e67e22; 
+            --off: #bdc3c7; 
         }
         body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; background-color: var(--background); color: var(--text); padding-bottom: 90px; }
 
-        /* HEADER */
         header { background: white; color: var(--primary); padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center;}
         header h1 { margin: 0; font-size: 20px; font-weight: 700; }
-        .icon-btn { color: var(--primary); font-size: 1.3rem; }
+        .icon-btn { color: var(--primary); font-size: 1.3rem; cursor: pointer; }
 
-        /* MENU GRID - Like the small phone screen */
         .container { padding: 15px; max-width: 600px; margin: auto; }
         .section-header { font-size: 14px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 5px; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; display: block; clear: both; }
         
@@ -29,26 +27,28 @@
         .pizza-card:active { transform: scale(0.98); }
         .pizza-card.off { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
         
-        /* The Big Pizza Image - Central to the look */
         .pizza-img { width: 90%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-
         .pizza-card h3 { margin: 0; font-size: 16px; color: #2c3e50; font-weight: 600;}
         .pizza-card .pizza-price { margin: 5px 0 10px; color: var(--text); font-weight: bold; font-size: 14px;}
-        
         .btn-add { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; font-size: 13px; }
 
-        /* CART FLOATING PANEL - From the image */
-        #cart-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; display: none; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
-        .cart-details-row { display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 15px; font-weight: bold;}
+        /* CART PANEL UPGRADES */
+        #cart-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; display: none; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; }
+        .cart-details-row { display: flex; justify-content: space-between; font-size: 18px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px;}
         
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box;}
-        input:focus { border-color: var(--primary); outline: none; }
-        
-        .btn-confirm { background: #27ae60; width: 100%; font-size: 16px; padding: 15px; border-radius: 8px; color: white; border: none; font-weight: bold; cursor: pointer;}
-        
-        /* Utility */
-        #loading { text-align: center; color: var(--primary); font-weight: bold; padding-top: 50px; font-size: 1.2rem;}
+        /* Cart Item Rows */
+        .cart-items-list { margin-bottom: 15px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
+        .qty-controls { display: flex; align-items: center; gap: 10px; }
+        .qty-btn { background: #eee; border: none; width: 25px; height: 25px; border-radius: 50%; font-weight: bold; cursor: pointer; }
 
+        textarea { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; box-sizing: border-box; resize: none; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box;}
+        
+        .btn-confirm { background: #27ae60; width: 100%; font-size: 16px; padding: 15px; border-radius: 8px; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 5px;}
+        .btn-close { background: none; border: none; color: #999; font-size: 14px; cursor: pointer; }
+
+        #loading { text-align: center; color: var(--primary); font-weight: bold; padding-top: 50px; font-size: 1.2rem;}
     </style>
 </head>
 <body>
@@ -56,21 +56,30 @@
 <header>
     <div class="icon-btn">🏠</div>
     <h1>🍕 Capitano Menu</h1>
-    <div class="icon-btn">🛒</div>
+    <div class="icon-btn" onclick="toggleCart()">🛒</div>
 </header>
 
 <div id="loading">Cooking...</div>
 
-<div class="container" id="menu-list">
-    </div>
+<div class="container" id="menu-list"></div>
 
 <div id="cart-panel">
     <div class="cart-details-row">
-        <span>Cart</span>
-        <span id="cart-summary">$0.00 (0)</span>
+        <span>Your Order</span>
+        <button class="btn-close" onclick="toggleCart()">Close ✖</button>
     </div>
+    
+    <div id="cart-items-display" class="cart-items-list">
+        </div>
+
+    <div class="cart-details-row" style="border:none; font-size: 16px;">
+        <span>Total:</span>
+        <span id="cart-summary-total">0.00 DA</span>
+    </div>
+
+    <textarea id="order-note" rows="2" placeholder="Special instructions (e.g., extra cheese, no onions...)"></textarea>
     <input type="tel" id="cust-phone" placeholder="Your Phone Number" required>
-    <button class="btn-confirm" onclick="submitOrder()">Place Order</button>
+    <button class="btn-confirm" onclick="confirmOrder()">Place Order</button>
 </div>
 
 <script type="module">
@@ -89,75 +98,113 @@
     const db = getDatabase(app);
     let cart = [];
 
-    // PLACEHOLDER IMAGES (If you upload real images, replace these URLs in Firebase)
     const images = {
         "Margherita": "https://img.buzzfeed.com/buzzfeed-static/static/2021-08/17/22/asset/f66ebbd25d2c/sub-buzz-1376-1629239556-12.jpg?downsize=700%3A%2A&output-quality=auto&output-format=auto",
         "Pepperoni": "https://pizzatoday.com/wp-content/uploads/2020/06/Pepperoni-Pizza-scaled.jpg",
         "default": "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg"
     };
 
-    // Watch Menu Data (Firebase Realtime Sync)
     onValue(ref(db, 'pizzas'), (snap) => {
         document.getElementById('loading').style.display = 'none';
         const list = document.getElementById('menu-list');
-        list.innerHTML = "";
-        
-        if (!snap.exists()) {
-            list.innerHTML = "<p style='text-align:center;'>Welcome to Capitano! <br> Our menu is empty right now.</p>";
-            return;
-        }
-
-        let currentCategory = ""; // Grouping logic (optional, we will use standard first)
-
-        list.innerHTML += `<div class="section-header">Pizzas</div><div class="pizza-list" id="pizza-grid"></div>`;
+        list.innerHTML = `<div class="section-header">Pizzas</div><div class="pizza-list" id="pizza-grid"></div>`;
         const grid = document.getElementById('pizza-grid');
 
         snap.forEach(child => {
             const p = child.val();
-            const pizzaKey = p.name; // Simple key based on name
-            const imgSrc = images[pizzaKey] || images['default'];
-
+            const imgSrc = images[p.name] || images['default'];
             grid.innerHTML += `
                 <div class="pizza-card ${!p.available ? 'off' : ''}">
-                    <img src="${imgSrc}" class="pizza-img" alt="${p.name}">
+                    <img src="${imgSrc}" class="pizza-img">
                     <h3>${p.name}</h3>
-                    <div class="pizza-price">$${p.price.toFixed(2)}</div>
+                    <div class="pizza-price">${p.price.toFixed(2)} DA</div>
                     <button class="btn-add" onclick="addToCart('${p.name}', ${p.price})">${p.available ? 'Add' : 'Sold Out'}</button>
                 </div>`;
         });
     });
 
-    // Cart Logic
+    window.toggleCart = () => {
+        const panel = document.getElementById('cart-panel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    };
+
     window.addToCart = (name, price) => {
-        cart.push({name, price});
+        const existing = cart.find(item => item.name === name);
+        if (existing) {
+            existing.qty++;
+        } else {
+            cart.push({name, price, qty: 1});
+        }
         updateCartUI();
+        document.getElementById('cart-panel').style.display = 'block';
+    };
+
+    window.changeQty = (name, delta) => {
+        const item = cart.find(i => i.name === name);
+        if (item) {
+            item.qty += delta;
+            if (item.qty <= 0) cart = cart.filter(i => i.name !== name);
+            updateCartUI();
+        }
     };
 
     const updateCartUI = () => {
-        const total = cart.reduce((s, i) => s + i.price, 0);
-        document.getElementById('cart-panel').style.display = 'block';
-        document.getElementById('cart-summary').innerText = `$${total.toFixed(2)} (${cart.length} items)`;
+        const display = document.getElementById('cart-items-display');
+        const totalEl = document.getElementById('cart-summary-total');
+        display.innerHTML = "";
+        
+        let total = 0;
+        cart.forEach(item => {
+            const itemTotal = item.price * item.qty;
+            total += itemTotal;
+            display.innerHTML += `
+                <div class="cart-item">
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        <small>${item.price} DA</small>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="changeQty('${item.name}', -1)">-</button>
+                        <span>${item.qty}</span>
+                        <button class="qty-btn" onclick="changeQty('${item.name}', 1)">+</button>
+                    </div>
+                </div>`;
+        });
+
+        totalEl.innerText = `${total.toFixed(2)} DA`;
+        if (cart.length === 0) document.getElementById('cart-panel').style.display = 'none';
     };
 
-    // Order Submission
-    window.submitOrder = () => {
+    window.confirmOrder = () => {
         const phone = document.getElementById('cust-phone').value;
-        if(!phone || cart.length === 0) return alert("Please select pizzas and enter a phone number!");
+        const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
         
-        // Data required by image structure
+        if(!phone || cart.length === 0) return alert("Please add items and enter your phone number!");
+
+        const isSure = confirm(`Confirm your order for ${total.toFixed(2)} DA?`);
+        if (isSure) {
+            submitOrder(phone, total);
+        }
+    };
+
+    function submitOrder(phone, total) {
+        const note = document.getElementById('order-note').value;
         push(ref(db, 'orders'), {
             phone: phone,
-            items_list: cart, // Storing full object list for better manager view
-            total: cart.reduce((s, i) => s + i.price, 0),
-            status: "Pending", // Default order status
-            timestamp: new Date().toLocaleTimeString(), // Like "Delivery Order" timestamp
-            tax: (cart.reduce((s, i) => s + i.price, 0) * 0.05).toFixed(2) // 5% simulated tax
+            items_list: cart,
+            note: note,
+            total: total,
+            status: "Pending",
+            timestamp: new Date().toLocaleTimeString()
         }).then(() => {
-            alert("Order placed! Your total is $" + cart.reduce((s, i) => s + i.price, 0).toFixed(2) + ". We will call you at " + phone + ".");
-            cart = []; // Empty cart after success
+            alert("Order Successful! We will contact you soon.");
+            cart = [];
+            document.getElementById('order-note').value = "";
+            document.getElementById('cust-phone').value = "";
+            updateCartUI();
             document.getElementById('cart-panel').style.display = 'none';
         });
-    };
+    }
 </script>
 </body>
 </html>
