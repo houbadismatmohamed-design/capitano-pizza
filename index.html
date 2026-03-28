@@ -5,82 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capitano - Order Online</title>
     <style>
-        :root { 
-            --primary: #1976d2; 
-            --background: #fdfdfd; 
-            --text: #333; 
-            --accent: #e67e22; 
-            --off: #bdc3c7; 
-        }
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; background-color: var(--background); color: var(--text); padding-bottom: 90px; }
-
-        /* HEADER */
+        :root { --primary: #1976d2; --background: #fdfdfd; --text: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; background-color: var(--background); padding-bottom: 90px; }
         header { background: white; color: var(--primary); padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center;}
-        header h1 { margin: 0; font-size: 20px; font-weight: 700; }
-        .icon-btn { color: var(--primary); font-size: 1.3rem; cursor: pointer; }
-
-        /* MENU GRID */
+        header h1 { margin: 0; font-size: 20px; }
         .container { padding: 15px; max-width: 600px; margin: auto; }
-        .section-header { font-size: 14px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 5px; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; display: block; clear: both; }
-        
+        .section-header { font-size: 14px; color: #7f8c8d; text-transform: uppercase; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; margin: 20px 0 10px; }
         .pizza-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        
-        .pizza-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #f0f0f0; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center; text-align: center;}
-        .pizza-card:active { transform: scale(0.98); }
-        .pizza-card.off { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
-        
-        .pizza-img { width: 90%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #eee; }
-        .pizza-card h3 { margin: 0; font-size: 16px; color: #2c3e50; font-weight: 600;}
-        .pizza-card .pizza-price { margin: 5px 0 10px; color: var(--text); font-weight: bold; font-size: 14px;}
-        .btn-add { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; font-size: 13px; }
-
-        /* CART PANEL */
-        #cart-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; display: none; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; }
-        .cart-details-row { display: flex; justify-content: space-between; font-size: 18px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px;}
-        
-        .cart-items-list { margin-bottom: 15px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
-        .qty-controls { display: flex; align-items: center; gap: 10px; }
-        .qty-btn { background: #eee; border: none; width: 25px; height: 25px; border-radius: 50%; font-weight: bold; cursor: pointer; }
-
-        textarea { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; box-sizing: border-box; resize: none; }
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box;}
-        
-        .btn-confirm { background: #27ae60; width: 100%; font-size: 16px; padding: 15px; border-radius: 8px; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 5px;}
-        .btn-close { background: none; border: none; color: #999; font-size: 14px; cursor: pointer; }
-
-        #loading { text-align: center; color: var(--primary); font-weight: bold; padding-top: 50px; font-size: 1.2rem;}
+        .pizza-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #f0f0f0; text-align: center; }
+        .pizza-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #eee; }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 20px; width: 100%; font-weight: bold; cursor: pointer; }
+        #cart-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; display: none; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); }
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
+        .qty-btn { background: #eee; border: none; width: 25px; height: 25px; border-radius: 50%; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn-confirm { background: #27ae60; color: white; width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<header>
-    <div class="icon-btn">🏠</div>
-    <h1>🍕 Capitano Menu</h1>
-    <div class="icon-btn" onclick="toggleCart()">🛒</div>
-</header>
-
-<div id="loading">Cooking...</div>
-
-<div class="container" id="menu-list"></div>
-
-<div id="cart-panel">
-    <div class="cart-details-row">
-        <span>Your Order</span>
-        <button class="btn-close" onclick="toggleCart()">Close ✖</button>
+    <header><div>🏠</div><h1>🍕 Capitano Menu</h1><div onclick="toggleCart()">🛒</div></header>
+    <div id="loading" style="text-align:center; padding:50px;">Loading Menu...</div>
+    <div class="container" id="menu-list"></div>
+    <div id="cart-panel">
+        <div id="cart-items-display"></div>
+        <div style="display:flex; justify-content:space-between; font-weight:bold; margin: 10px 0;"><span>Total:</span><span id="cart-summary-total">0.00 DA</span></div>
+        <textarea id="order-note" placeholder="Any notes? (Extra cheese, etc)"></textarea>
+        <input type="tel" id="cust-phone" placeholder="Your Phone Number">
+        <button class="btn-confirm" onclick="confirmOrder()">Confirm Order</button>
     </div>
-    
-    <div id="cart-items-display" class="cart-items-list"></div>
-
-    <div class="cart-details-row" style="border:none; font-size: 16px;">
-        <span>Total:</span>
-        <span id="cart-summary-total">0.00 DA</span>
-    </div>
-
-    <textarea id="order-note" rows="2" placeholder="Special instructions (e.g., extra cheese, no onions...)"></textarea>
-    <input type="tel" id="cust-phone" placeholder="Your Phone Number" required>
-    <button class="btn-confirm" onclick="confirmOrder()">Place Order</button>
-</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -88,120 +40,73 @@
 
     const firebaseConfig = {
         apiKey: "AIzaSyBFsq2X7dNWDzUTM0YIXfocEwu98Ec8oSM",
-        authDomain: "capitano-13.firebaseapp.com",
-        projectId: "capitano-13",
         databaseURL: "https://capitano-13-default-rtdb.europe-west1.firebasedatabase.app/",
-        appId: "1:244607757500:web:3ab7c1bdec458bba5cb4b9"
+        projectId: "capitano-13"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     let cart = [];
 
-    // Watch Menu Data
     onValue(ref(db, 'pizzas'), (snap) => {
         document.getElementById('loading').style.display = 'none';
         const list = document.getElementById('menu-list');
-        list.innerHTML = `<div class="section-header">Pizzas</div><div class="pizza-list" id="pizza-grid"></div>`;
+        list.innerHTML = `<div class="section-header">Menu</div><div class="pizza-list" id="pizza-grid"></div>`;
         const grid = document.getElementById('pizza-grid');
 
         snap.forEach(child => {
             const p = child.val();
-            // FIX: Uses the 'img' from database uploaded by Manager, or default if empty
+            // FIX: Using exact field 'img' from manager
             const imgSrc = p.img ? p.img : "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg";
-
             grid.innerHTML += `
-                <div class="pizza-card ${!p.available ? 'off' : ''}">
+                <div class="pizza-card">
                     <img src="${imgSrc}" class="pizza-img">
                     <h3>${p.name}</h3>
-                    <div class="pizza-price">${p.price.toFixed(2)} DA</div>
-                    <button class="btn-add" onclick="addToCart('${p.name}', ${p.price})">${p.available ? 'Add' : 'Sold Out'}</button>
+                    <div style="font-weight:bold; margin-bottom:10px;">${p.price.toFixed(2)} DA</div>
+                    <button class="btn-add" onclick="addToCart('${p.name}', ${p.price})">Add</button>
                 </div>`;
         });
     });
 
-    window.toggleCart = () => {
-        const panel = document.getElementById('cart-panel');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-    };
+    window.toggleCart = () => { document.getElementById('cart-panel').style.display = (document.getElementById('cart-panel').style.display === 'block' ? 'none' : 'block'); };
 
     window.addToCart = (name, price) => {
-        const existing = cart.find(item => item.name === name);
-        if (existing) {
-            existing.qty++;
-        } else {
-            cart.push({name, price, qty: 1});
-        }
+        const item = cart.find(i => i.name === name);
+        item ? item.qty++ : cart.push({name, price, qty: 1});
         updateCartUI();
         document.getElementById('cart-panel').style.display = 'block';
     };
 
-    window.changeQty = (name, delta) => {
-        const item = cart.find(i => i.name === name);
-        if (item) {
-            item.qty += delta;
-            if (item.qty <= 0) cart = cart.filter(i => i.name !== name);
-            updateCartUI();
-        }
+    window.changeQty = (name, d) => {
+        const i = cart.find(x => x.name === name);
+        if(i) { i.qty += d; if(i.qty <= 0) cart = cart.filter(x => x.name !== name); }
+        updateCartUI();
     };
 
-    const updateCartUI = () => {
-        const display = document.getElementById('cart-items-display');
-        const totalEl = document.getElementById('cart-summary-total');
-        display.innerHTML = "";
-        
-        let total = 0;
-        cart.forEach(item => {
-            const itemTotal = item.price * item.qty;
-            total += itemTotal;
-            display.innerHTML += `
-                <div class="cart-item">
-                    <div>
-                        <strong>${item.name}</strong><br>
-                        <small>${item.price} DA</small>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="changeQty('${item.name}', -1)">-</button>
-                        <span>${item.qty}</span>
-                        <button class="qty-btn" onclick="changeQty('${item.name}', 1)">+</button>
-                    </div>
-                </div>`;
+    function updateCartUI() {
+        const d = document.getElementById('cart-items-display');
+        d.innerHTML = ""; let total = 0;
+        cart.forEach(i => {
+            total += (i.price * i.qty);
+            d.innerHTML += `<div class="cart-item"><span>${i.name}</span><div><button class="qty-btn" onclick="changeQty('${i.name}', -1)">-</button> ${i.qty} <button class="qty-btn" onclick="changeQty('${i.name}', 1)">+</button></div></div>`;
         });
-
-        totalEl.innerText = `${total.toFixed(2)} DA`;
-        if (cart.length === 0) document.getElementById('cart-panel').style.display = 'none';
-    };
+        document.getElementById('cart-summary-total').innerText = total.toFixed(2) + " DA";
+        if(cart.length === 0) document.getElementById('cart-panel').style.display = 'none';
+    }
 
     window.confirmOrder = () => {
         const phone = document.getElementById('cust-phone').value;
-        const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-        
-        if(!phone || cart.length === 0) return alert("Please add items and enter your phone number!");
+        if(!phone || cart.length === 0) return alert("Details missing!");
+        if(!confirm("Place order?")) return;
 
-        const isSure = confirm(`Confirm your order for ${total.toFixed(2)} DA?`);
-        if (isSure) {
-            submitOrder(phone, total);
-        }
-    };
-
-    function submitOrder(phone, total) {
-        const note = document.getElementById('order-note').value;
         push(ref(db, 'orders'), {
-            phone: phone,
-            items_list: cart,
-            note: note,
-            total: total,
-            status: "Pending",
-            timestamp: new Date().toLocaleTimeString()
+            phone, items_list: cart, note: document.getElementById('order-note').value,
+            total: cart.reduce((s,i) => s+(i.price*i.qty), 0),
+            status: "Pending", timestamp: new Date().toLocaleTimeString()
         }).then(() => {
-            alert("Order Successful! We will contact you soon.");
-            cart = [];
-            document.getElementById('order-note').value = "";
-            document.getElementById('cust-phone').value = "";
-            updateCartUI();
-            document.getElementById('cart-panel').style.display = 'none';
+            alert("Success!"); cart = []; updateCartUI();
         });
-    }
+    };
 </script>
 </body>
 </html>
