@@ -14,10 +14,12 @@
         }
         body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; background-color: var(--background); color: var(--text); padding-bottom: 90px; }
 
+        /* HEADER */
         header { background: white; color: var(--primary); padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center;}
         header h1 { margin: 0; font-size: 20px; font-weight: 700; }
         .icon-btn { color: var(--primary); font-size: 1.3rem; cursor: pointer; }
 
+        /* MENU GRID */
         .container { padding: 15px; max-width: 600px; margin: auto; }
         .section-header { font-size: 14px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 5px; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; display: block; clear: both; }
         
@@ -27,16 +29,15 @@
         .pizza-card:active { transform: scale(0.98); }
         .pizza-card.off { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
         
-        .pizza-img { width: 90%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .pizza-img { width: 90%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #eee; }
         .pizza-card h3 { margin: 0; font-size: 16px; color: #2c3e50; font-weight: 600;}
         .pizza-card .pizza-price { margin: 5px 0 10px; color: var(--text); font-weight: bold; font-size: 14px;}
         .btn-add { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; font-size: 13px; }
 
-        /* CART PANEL UPGRADES */
+        /* CART PANEL */
         #cart-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; display: none; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; }
         .cart-details-row { display: flex; justify-content: space-between; font-size: 18px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px;}
         
-        /* Cart Item Rows */
         .cart-items-list { margin-bottom: 15px; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
         .qty-controls { display: flex; align-items: center; gap: 10px; }
@@ -69,8 +70,7 @@
         <button class="btn-close" onclick="toggleCart()">Close ✖</button>
     </div>
     
-    <div id="cart-items-display" class="cart-items-list">
-        </div>
+    <div id="cart-items-display" class="cart-items-list"></div>
 
     <div class="cart-details-row" style="border:none; font-size: 16px;">
         <span>Total:</span>
@@ -98,12 +98,7 @@
     const db = getDatabase(app);
     let cart = [];
 
-    const images = {
-        "Margherita": "https://img.buzzfeed.com/buzzfeed-static/static/2021-08/17/22/asset/f66ebbd25d2c/sub-buzz-1376-1629239556-12.jpg?downsize=700%3A%2A&output-quality=auto&output-format=auto",
-        "Pepperoni": "https://pizzatoday.com/wp-content/uploads/2020/06/Pepperoni-Pizza-scaled.jpg",
-        "default": "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg"
-    };
-
+    // Watch Menu Data
     onValue(ref(db, 'pizzas'), (snap) => {
         document.getElementById('loading').style.display = 'none';
         const list = document.getElementById('menu-list');
@@ -112,7 +107,9 @@
 
         snap.forEach(child => {
             const p = child.val();
-            const imgSrc = images[p.name] || images['default'];
+            // FIX: Uses the 'img' from database uploaded by Manager, or default if empty
+            const imgSrc = p.img ? p.img : "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg";
+
             grid.innerHTML += `
                 <div class="pizza-card ${!p.available ? 'off' : ''}">
                     <img src="${imgSrc}" class="pizza-img">
