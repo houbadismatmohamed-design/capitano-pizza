@@ -3,208 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capitano - Order Online</title>
+    <title>Capitano POS - Manager</title>
     <style>
-        :root { 
-            --primary: #1976d2; 
-            --background: #fdfdfd; 
-            --text: #333; 
-            --accent: #e67e22; 
-            --off: #bdc3c7; 
-        }
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; background-color: var(--background); color: var(--text); padding-bottom: 90px; }
-
-        header { background: white; color: var(--primary); padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center;}
-        header h1 { margin: 0; font-size: 20px; font-weight: 700; }
-        .icon-btn { color: var(--primary); font-size: 1.3rem; cursor: pointer; }
-
-        .container { padding: 15px; max-width: 600px; margin: auto; }
-        .section-header { font-size: 14px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 5px; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; display: block; clear: both; }
+        :root { --pos-blue: #1976d2; --pos-bg: #f4f7f9; --sidebar-bg: #fff; }
+        body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: var(--pos-bg); overflow: hidden; }
         
-        .pizza-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        /* Layout Sections */
+        .main-content { flex: 2; padding: 20px; overflow-y: auto; border-right: 2px solid #ddd; }
+        .sidebar { flex: 1; display: flex; flex-direction: column; background: var(--sidebar-bg); }
         
-        .pizza-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #f0f0f0; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center; text-align: center;}
-        .pizza-card:active { transform: scale(0.98); }
-        .pizza-card.off { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
-        
-        .pizza-img { width: 90%; aspect-ratio: 1; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .pizza-card h3 { margin: 0; font-size: 16px; color: #2c3e50; font-weight: 600;}
-        .pizza-card .pizza-price { margin: 5px 0 10px; color: var(--text); font-weight: bold; font-size: 14px;}
-        .btn-add { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; font-size: 13px; }
+        /* Tabs for History/Current */
+        .tabs { display: flex; background: #eee; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
+        .tab.active { background: white; border-bottom-color: var(--pos-blue); color: var(--pos-blue); }
 
-        /* CART PANEL UPGRADES */
-        #cart-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; display: none; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); max-height: 85vh; overflow-y: auto; }
-        .cart-details-row { display: flex; justify-content: space-between; font-size: 18px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px;}
+        /* Product Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .admin-card { background: white; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;}
+        .admin-card img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; }
         
-        /* Cart Item Rows */
-        .cart-items-list { margin-bottom: 15px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f9f9f9; }
-        .qty-controls { display: flex; align-items: center; gap: 10px; }
-        .qty-btn { background: #eee; border: none; width: 25px; height: 25px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+        /* Forms */
+        .add-form { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        input, select { padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        .btn-save { background: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        textarea { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; box-sizing: border-box; resize: none; }
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box;}
+        /* Order Tickets */
+        .order-list { flex: 1; overflow-y: auto; padding: 15px; }
+        .ticket { background: #f9f9f9; border-left: 5px solid var(--pos-blue); padding: 15px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; position: relative;}
+        .ticket.history { border-left-color: #95a5a6; }
+        .note { background: #fff9c4; padding: 5px; font-size: 12px; margin-top: 5px; border-radius: 4px; border: 1px border #fbc02d; }
+
+        .badge { background: var(--pos-blue); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        .income-bar { padding: 20px; background: #2c3e50; color: white; text-align: center; }
         
-        .btn-confirm { background: #27ae60; width: 100%; font-size: 16px; padding: 15px; border-radius: 8px; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 5px;}
-        .btn-close { background: none; border: none; color: #999; font-size: 14px; cursor: pointer; }
-
-        #loading { text-align: center; color: var(--primary); font-weight: bold; padding-top: 50px; font-size: 1.2rem;}
+        #preview-img { width: 50px; height: 50px; border-radius: 50%; display: none; margin-top: 10px;}
     </style>
 </head>
 <body>
 
-<header>
-    <div class="icon-btn">🏠</div>
-    <h1>🍕 Capitano Menu</h1>
-    <div class="icon-btn" onclick="toggleCart()">🛒</div>
-</header>
-
-<div id="loading">Cooking...</div>
-
-<div class="container" id="menu-list"></div>
-
-<div id="cart-panel">
-    <div class="cart-details-row">
-        <span>Your Order</span>
-        <button class="btn-close" onclick="toggleCart()">Close ✖</button>
-    </div>
-    
-    <div id="cart-items-display" class="cart-items-list">
+    <div class="main-content">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>🍕 Pizza Management</h2>
+            <button onclick="takeWalkInOrder()" style="background:var(--pos-blue); color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:bold;">+ Walk-in Order</button>
         </div>
 
-    <div class="cart-details-row" style="border:none; font-size: 16px;">
-        <span>Total:</span>
-        <span id="cart-summary-total">0.00 DA</span>
+        <div class="add-form">
+            <h4 style="margin-top:0">Add New Product</h4>
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1">
+                    <input type="text" id="p-name" placeholder="Name (e.g. Seafood)">
+                    <input type="number" id="p-price" placeholder="Price (DA)">
+                </div>
+                <div style="flex:1; text-align:center;">
+                    <label style="font-size:12px; color:#666; cursor:pointer; background:#eee; padding:10px; display:block; border-radius:6px;">
+                        📸 Upload Photo
+                        <input type="file" id="p-image" accept="image/*" style="display:none" onchange="previewImage(this)">
+                    </label>
+                    <img id="preview-img">
+                </div>
+            </div>
+            <button class="btn-save" onclick="savePizza()">Save Product</button>
+        </div>
+
+        <div class="grid" id="inventory-grid"></div>
     </div>
 
-    <textarea id="order-note" rows="2" placeholder="Special instructions (e.g., extra cheese, no onions...)"></textarea>
-    <input type="tel" id="cust-phone" placeholder="Your Phone Number" required>
-    <button class="btn-confirm" onclick="confirmOrder()">Place Order</button>
-</div>
+    <div class="sidebar">
+        <div class="tabs">
+            <div class="tab active" id="tab-live" onclick="showTab('live')">Live Orders</div>
+            <div class="tab" id="tab-history" onclick="showTab('history')">History</div>
+        </div>
+
+        <div id="live-orders-view" class="order-list"></div>
+        <div id="history-view" class="order-list" style="display:none"></div>
+
+        <div class="income-bar">
+            <small>Total Sales Today</small>
+            <div id="total-income" style="font-size:24px; font-weight:bold;">0.00 DA</div>
+        </div>
+    </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    const firebaseConfig = {
+    const conf = {
         apiKey: "AIzaSyBFsq2X7dNWDzUTM0YIXfocEwu98Ec8oSM",
-        authDomain: "capitano-13.firebaseapp.com",
-        projectId: "capitano-13",
         databaseURL: "https://capitano-13-default-rtdb.europe-west1.firebasedatabase.app/",
-        appId: "1:244607757500:web:3ab7c1bdec458bba5cb4b9"
+        projectId: "capitano-13"
     };
-
-    const app = initializeApp(firebaseConfig);
+    const app = initializeApp(conf);
     const db = getDatabase(app);
-    let cart = [];
+    let currentImageBase64 = "";
 
-    const images = {
-        "Margherita": "https://img.buzzfeed.com/buzzfeed-static/static/2021-08/17/22/asset/f66ebbd25d2c/sub-buzz-1376-1629239556-12.jpg?downsize=700%3A%2A&output-quality=auto&output-format=auto",
-        "Pepperoni": "https://pizzatoday.com/wp-content/uploads/2020/06/Pepperoni-Pizza-scaled.jpg",
-        "default": "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg"
+    // --- TAB LOGIC ---
+    window.showTab = (type) => {
+        document.getElementById('live-orders-view').style.display = type === 'live' ? 'block' : 'none';
+        document.getElementById('history-view').style.display = type === 'history' ? 'block' : 'none';
+        document.getElementById('tab-live').classList.toggle('active', type === 'live');
+        document.getElementById('tab-history').classList.toggle('active', type === 'history');
     };
 
-    onValue(ref(db, 'pizzas'), (snap) => {
-        document.getElementById('loading').style.display = 'none';
-        const list = document.getElementById('menu-list');
-        list.innerHTML = `<div class="section-header">Pizzas</div><div class="pizza-list" id="pizza-grid"></div>`;
-        const grid = document.getElementById('pizza-grid');
+    // --- IMAGE PREVIEW ---
+    window.previewImage = (input) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            currentImageBase64 = e.target.result;
+            document.getElementById('preview-img').src = currentImageBase64;
+            document.getElementById('preview-img').style.display = 'inline-block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    };
 
+    // --- SAVE PRODUCT ---
+    window.savePizza = () => {
+        const name = document.getElementById('p-name').value;
+        const price = parseFloat(document.getElementById('p-price').value);
+        if(!name || !price) return alert("Fill all fields");
+
+        push(ref(db, 'pizzas'), {
+            name, price, available: true,
+            img: currentImageBase64 || "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg"
+        }).then(() => {
+            document.getElementById('p-name').value = "";
+            document.getElementById('p-price').value = "";
+            document.getElementById('preview-img').style.display = 'none';
+            currentImageBase64 = "";
+        });
+    };
+
+    // --- RENDER MENU ---
+    onValue(ref(db, 'pizzas'), (snap) => {
+        const grid = document.getElementById('inventory-grid');
+        grid.innerHTML = "";
         snap.forEach(child => {
             const p = child.val();
-            const imgSrc = images[p.name] || images['default'];
             grid.innerHTML += `
-                <div class="pizza-card ${!p.available ? 'off' : ''}">
-                    <img src="${imgSrc}" class="pizza-img">
-                    <h3>${p.name}</h3>
-                    <div class="pizza-price">${p.price.toFixed(2)} DA</div>
-                    <button class="btn-add" onclick="addToCart('${p.name}', ${p.price})">${p.available ? 'Add' : 'Sold Out'}</button>
+                <div class="admin-card">
+                    <img src="${p.img}">
+                    <h4>${p.name}</h4>
+                    <strong>${p.price} DA</strong><br>
+                    <button onclick="toggleStock('${child.key}', ${p.available})" style="background:${p.available?'#27ae60':'#999'}; color:white; border:none; border-radius:4px; font-size:10px; margin-top:5px; cursor:pointer;">
+                        ${p.available?'In Stock':'Out'}
+                    </button>
+                    <button onclick="del('pizzas/${child.key}')" style="color:red; background:none; border:none; display:block; width:100%; font-size:10px; margin-top:5px;">Delete</button>
                 </div>`;
         });
     });
 
-    window.toggleCart = () => {
-        const panel = document.getElementById('cart-panel');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-    };
+    // --- RENDER ORDERS & HISTORY ---
+    onValue(ref(db, 'orders'), (snap) => {
+        const liveView = document.getElementById('live-orders-view');
+        const historyView = document.getElementById('history-view');
+        liveView.innerHTML = ""; historyView.innerHTML = "";
+        let income = 0;
 
-    window.addToCart = (name, price) => {
-        const existing = cart.find(item => item.name === name);
-        if (existing) {
-            existing.qty++;
-        } else {
-            cart.push({name, price, qty: 1});
-        }
-        updateCartUI();
-        document.getElementById('cart-panel').style.display = 'block';
-    };
-
-    window.changeQty = (name, delta) => {
-        const item = cart.find(i => i.name === name);
-        if (item) {
-            item.qty += delta;
-            if (item.qty <= 0) cart = cart.filter(i => i.name !== name);
-            updateCartUI();
-        }
-    };
-
-    const updateCartUI = () => {
-        const display = document.getElementById('cart-items-display');
-        const totalEl = document.getElementById('cart-summary-total');
-        display.innerHTML = "";
-        
-        let total = 0;
-        cart.forEach(item => {
-            const itemTotal = item.price * item.qty;
-            total += itemTotal;
-            display.innerHTML += `
-                <div class="cart-item">
-                    <div>
-                        <strong>${item.name}</strong><br>
-                        <small>${item.price} DA</small>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="changeQty('${item.name}', -1)">-</button>
-                        <span>${item.qty}</span>
-                        <button class="qty-btn" onclick="changeQty('${item.name}', 1)">+</button>
+        snap.forEach(child => {
+            const o = child.val();
+            const itemsHtml = o.items_list.map(i => `${i.qty}x ${i.name}`).join(", ");
+            const noteHtml = o.note ? `<div class="note">📝 ${o.note}</div>` : "";
+            
+            const ticket = `
+                <div class="ticket ${o.status === 'Done' ? 'history' : ''}" onclick="manageOrder('${child.key}', '${o.status}')">
+                    <span class="badge">${o.status}</span>
+                    <strong style="display:block; margin:5px 0;">📞 ${o.phone}</strong>
+                    <div style="font-size:13px; color:#555;">${itemsHtml}</div>
+                    ${noteHtml}
+                    <div style="margin-top:10px; font-weight:bold; display:flex; justify-content:space-between;">
+                        <span>Total: ${o.total.toFixed(2)} DA</span>
+                        <small style="color:#999">${o.timestamp}</small>
                     </div>
                 </div>`;
+
+            if(o.status === 'Pending') {
+                liveView.innerHTML += ticket;
+            } else {
+                historyView.innerHTML += ticket;
+                income += o.total;
+            }
         });
+        document.getElementById('total-income').innerText = income.toFixed(2) + " DA";
+    });
 
-        totalEl.innerText = `${total.toFixed(2)} DA`;
-        if (cart.length === 0) document.getElementById('cart-panel').style.display = 'none';
-    };
-
-    window.confirmOrder = () => {
-        const phone = document.getElementById('cust-phone').value;
-        const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-        
-        if(!phone || cart.length === 0) return alert("Please add items and enter your phone number!");
-
-        const isSure = confirm(`Confirm your order for ${total.toFixed(2)} DA?`);
-        if (isSure) {
-            submitOrder(phone, total);
+    // --- ACTIONS ---
+    window.manageOrder = (id, status) => {
+        if(status === 'Pending') {
+            if(confirm("Complete this order and move to history?")) update(ref(db, `orders/${id}`), { status: 'Done' });
+        } else {
+            if(confirm("Delete this order from history forever?")) remove(ref(db, `orders/${id}`));
         }
     };
 
-    function submitOrder(phone, total) {
-        const note = document.getElementById('order-note').value;
-        push(ref(db, 'orders'), {
-            phone: phone,
-            items_list: cart,
-            note: note,
-            total: total,
-            status: "Pending",
-            timestamp: new Date().toLocaleTimeString()
-        }).then(() => {
-            alert("Order Successful! We will contact you soon.");
-            cart = [];
-            document.getElementById('order-note').value = "";
-            document.getElementById('cust-phone').value = "";
-            updateCartUI();
-            document.getElementById('cart-panel').style.display = 'none';
-        });
-    }
+    window.takeWalkInOrder = () => {
+        const phone = prompt("Customer Name or Phone:");
+        const amount = prompt("Total Amount (DA):");
+        if(phone && amount) {
+            push(ref(db, 'orders'), {
+                phone: phone,
+                items_list: [{name: "Walk-in Order", qty: 1}],
+                total: parseFloat(amount),
+                status: "Done",
+                timestamp: new Date().toLocaleTimeString(),
+                note: "Over-the-counter sale"
+            });
+        }
+    };
+
+    window.toggleStock = (id, s) => update(ref(db, `pizzas/${id}`), { available: !s });
+    window.del = (path) => { if(confirm("Delete this?")) remove(ref(db, path)); };
+
 </script>
 </body>
 </html>
