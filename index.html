@@ -12,9 +12,15 @@
         .container { padding: 15px; max-width: 600px; margin: auto; }
         .section-header { font-size: 14px; color: #7f8c8d; text-transform: uppercase; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; margin: 20px 0 10px; }
         .pizza-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .pizza-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #f0f0f0; text-align: center; }
+        
+        /* Updated Card and Sold Out Styles */
+        .pizza-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #f0f0f0; text-align: center; transition: 0.3s; }
+        .pizza-card.out { opacity: 0.6; filter: grayscale(1); }
         .pizza-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #eee; }
+        
         .btn-add { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 20px; width: 100%; font-weight: bold; cursor: pointer; }
+        .btn-out { background: #ccc; color: #666; border: none; padding: 10px; border-radius: 20px; width: 100%; font-weight: bold; cursor: not-allowed; }
+
         #cart-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; display: none; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); }
         .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
         .qty-btn { background: #eee; border: none; width: 25px; height: 25px; border-radius: 50%; }
@@ -56,14 +62,20 @@
 
         snap.forEach(child => {
             const p = child.val();
-            // FIX: Using exact field 'img' from manager
             const imgSrc = p.img ? p.img : "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg";
+            
+            // CHECK AVAILABILITY
+            const isAvailable = p.available !== false; 
+
             grid.innerHTML += `
-                <div class="pizza-card">
+                <div class="pizza-card ${!isAvailable ? 'out' : ''}">
                     <img src="${imgSrc}" class="pizza-img">
                     <h3>${p.name}</h3>
                     <div style="font-weight:bold; margin-bottom:10px;">${p.price.toFixed(2)} DA</div>
-                    <button class="btn-add" onclick="addToCart('${p.name}', ${p.price})">Add</button>
+                    ${isAvailable 
+                        ? `<button class="btn-add" onclick="addToCart('${p.name}', ${p.price})">Add</button>` 
+                        : `<button class="btn-out" disabled>Sold Out</button>`
+                    }
                 </div>`;
         });
     });
@@ -85,12 +97,13 @@
 
     function updateCartUI() {
         const d = document.getElementById('cart-items-display');
+        const totalEl = document.getElementById('cart-summary-total');
         d.innerHTML = ""; let total = 0;
         cart.forEach(i => {
             total += (i.price * i.qty);
             d.innerHTML += `<div class="cart-item"><span>${i.name}</span><div><button class="qty-btn" onclick="changeQty('${i.name}', -1)">-</button> ${i.qty} <button class="qty-btn" onclick="changeQty('${i.name}', 1)">+</button></div></div>`;
         });
-        document.getElementById('cart-summary-total').innerText = total.toFixed(2) + " DA";
+        totalEl.innerText = total.toFixed(2) + " DA";
         if(cart.length === 0) document.getElementById('cart-panel').style.display = 'none';
     }
 
@@ -105,6 +118,8 @@
             status: "Pending", timestamp: new Date().toLocaleTimeString()
         }).then(() => {
             alert("Success!"); cart = []; updateCartUI();
+            document.getElementById('order-note').value = "";
+            document.getElementById('cust-phone').value = "";
         });
     };
 </script>
