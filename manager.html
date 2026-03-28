@@ -3,210 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capitano POS - Manager</title>
+    <title>Capitano - Order Online</title>
     <style>
-        :root { --pos-blue: #1976d2; --pos-bg: #f4f7f9; --sidebar-bg: #fff; }
-        body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: var(--pos-bg); overflow: hidden; }
+        :root { --primary: #1976d2; --background: #fdfdfd; --text: #333; }
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; background-color: var(--background); padding-bottom: 90px; }
+        header { background: white; color: var(--primary); padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center;}
+        header h1 { margin: 0; font-size: 20px; }
+        .container { padding: 15px; max-width: 600px; margin: auto; }
+        .section-header { font-size: 14px; color: #7f8c8d; text-transform: uppercase; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px; margin: 20px 0 10px; }
+        .pizza-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         
-        .main-content { flex: 2; padding: 20px; overflow-y: auto; border-right: 2px solid #ddd; }
-        .sidebar { flex: 1; display: flex; flex-direction: column; background: var(--sidebar-bg); }
+        /* Updated Card and Sold Out Styles */
+        .pizza-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #f0f0f0; text-align: center; transition: 0.3s; }
+        .pizza-card.out { opacity: 0.6; filter: grayscale(1); }
+        .pizza-img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #eee; }
         
-        .tabs { display: flex; background: #eee; }
-        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
-        .tab.active { background: white; border-bottom-color: var(--pos-blue); color: var(--pos-blue); }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 20px; width: 100%; font-weight: bold; cursor: pointer; }
+        .btn-out { background: #ccc; color: #666; border: none; padding: 10px; border-radius: 20px; width: 100%; font-weight: bold; cursor: not-allowed; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .admin-card { background: white; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;}
-        .admin-card img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; }
-        
-        .add-form { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        input { padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; }
-        .btn-save { background: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
-
-        .order-list { flex: 1; overflow-y: auto; padding: 15px; }
-        .ticket { background: #f9f9f9; border-left: 5px solid var(--pos-blue); padding: 15px; margin-bottom: 10px; border-radius: 5px; position: relative;}
-        .ticket.history { border-left-color: #95a5a6; }
-        .note { background: #fff9c4; padding: 5px; font-size: 12px; margin-top: 5px; border-radius: 4px; border: 1px solid #fbc02d; }
-        
-        /* Click to Call Style */
-        .phone-link { color: var(--pos-blue); text-decoration: none; font-weight: bold; display: block; margin: 5px 0; font-size: 16px; }
-
-        .badge { background: var(--pos-blue); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
-        .income-bar { padding: 20px; background: #2c3e50; color: white; text-align: center; }
-        #preview-img { width: 50px; height: 50px; border-radius: 50%; display: none; margin-top: 10px; object-fit: cover;}
+        #cart-panel { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 20px; box-sizing: border-box; border-radius: 20px 20px 0 0; display: none; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); }
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
+        .qty-btn { background: #eee; border: none; width: 25px; height: 25px; border-radius: 50%; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn-confirm { background: #27ae60; color: white; width: 100%; padding: 15px; border-radius: 8px; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div class="main-content">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2>🍕 Pizza Management</h2>
-            <button onclick="takeWalkInOrder()" style="background:var(--pos-blue); color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:bold;">+ Walk-in Order</button>
-        </div>
-
-        <div class="add-form">
-            <h4 style="margin-top:0">Add New Product</h4>
-            <div style="display:flex; gap:10px;">
-                <div style="flex:1">
-                    <input type="text" id="p-name" placeholder="Name">
-                    <input type="number" id="p-price" placeholder="Price (DA)">
-                </div>
-                <div style="flex:1; text-align:center;">
-                    <label style="font-size:12px; color:#666; cursor:pointer; background:#eee; padding:10px; display:block; border-radius:6px;">
-                        📸 Upload Photo
-                        <input type="file" id="p-image" accept="image/*" style="display:none" onchange="compressImage(this)">
-                    </label>
-                    <img id="preview-img">
-                </div>
-            </div>
-            <button class="btn-save" onclick="savePizza()">Save Product</button>
-        </div>
-
-        <div class="grid" id="inventory-grid"></div>
-    </div>
-
-    <div class="sidebar">
-        <div class="tabs">
-            <div class="tab active" id="tab-live" onclick="showTab('live')">Live Orders</div>
-            <div class="tab" id="tab-history" onclick="showTab('history')">History</div>
-        </div>
-        <div id="live-orders-view" class="order-list"></div>
-        <div id="history-view" class="order-list" style="display:none"></div>
-        <div class="income-bar">
-            <small>Total Sales Today</small>
-            <div id="total-income" style="font-size:24px; font-weight:bold;">0.00 DA</div>
-        </div>
+    <header><div>🏠</div><h1>🍕 Capitano Menu</h1><div onclick="toggleCart()">🛒</div></header>
+    <div id="loading" style="text-align:center; padding:50px;">Loading Menu...</div>
+    <div class="container" id="menu-list"></div>
+    <div id="cart-panel">
+        <div id="cart-items-display"></div>
+        <div style="display:flex; justify-content:space-between; font-weight:bold; margin: 10px 0;"><span>Total:</span><span id="cart-summary-total">0.00 DA</span></div>
+        <textarea id="order-note" placeholder="Any notes? (Extra cheese, etc)"></textarea>
+        <input type="tel" id="cust-phone" placeholder="Your Phone Number">
+        <button class="btn-confirm" onclick="confirmOrder()">Confirm Order</button>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    const conf = {
+    const firebaseConfig = {
         apiKey: "AIzaSyBFsq2X7dNWDzUTM0YIXfocEwu98Ec8oSM",
         databaseURL: "https://capitano-13-default-rtdb.europe-west1.firebasedatabase.app/",
         projectId: "capitano-13"
     };
-    const app = initializeApp(conf);
+
+    const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    let currentImageBase64 = "";
-
-    window.showTab = (type) => {
-        document.getElementById('live-orders-view').style.display = type === 'live' ? 'block' : 'none';
-        document.getElementById('history-view').style.display = type === 'history' ? 'block' : 'none';
-        document.getElementById('tab-live').classList.toggle('active', type === 'live');
-        document.getElementById('tab-history').classList.toggle('active', type === 'history');
-    };
-
-    // --- SMART COMPRESSOR ---
-    window.compressImage = (input) => {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 250; 
-                canvas.height = 250;
-                ctx.drawImage(img, 0, 0, 250, 250);
-                currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                document.getElementById('preview-img').src = currentImageBase64;
-                document.getElementById('preview-img').style.display = 'inline-block';
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    };
-
-    window.savePizza = () => {
-        const name = document.getElementById('p-name').value;
-        const price = parseFloat(document.getElementById('p-price').value);
-        if(!name || !price) return alert("Fill all fields");
-
-        push(ref(db, 'pizzas'), {
-            name, price, available: true,
-            img: currentImageBase64 || "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg"
-        }).then(() => {
-            document.getElementById('p-name').value = "";
-            document.getElementById('p-price').value = "";
-            document.getElementById('preview-img').style.display = 'none';
-            currentImageBase64 = "";
-        });
-    };
+    let cart = [];
 
     onValue(ref(db, 'pizzas'), (snap) => {
-        const grid = document.getElementById('inventory-grid');
-        grid.innerHTML = "";
+        document.getElementById('loading').style.display = 'none';
+        const list = document.getElementById('menu-list');
+        list.innerHTML = `<div class="section-header">Menu</div><div class="pizza-list" id="pizza-grid"></div>`;
+        const grid = document.getElementById('pizza-grid');
+
         snap.forEach(child => {
             const p = child.val();
-            grid.innerHTML += `
-                <div class="admin-card">
-                    <img src="${p.img}">
-                    <h4>${p.name}</h4>
-                    <strong>${p.price} DA</strong><br>
-                    <button onclick="toggleStock('${child.key}', ${p.available})" style="background:${p.available?'#27ae60':'#999'}; color:white; border:none; border-radius:4px; font-size:10px; margin-top:5px; cursor:pointer;">
-                        ${p.available?'In Stock':'Out'}
-                    </button>
-                    <button onclick="del('pizzas/${child.key}')" style="color:red; background:none; border:none; display:block; width:100%; font-size:10px; margin-top:5px;">Delete</button>
-                </div>`;
-        });
-    });
-
-    onValue(ref(db, 'orders'), (snap) => {
-        const liveView = document.getElementById('live-orders-view');
-        const historyView = document.getElementById('history-view');
-        liveView.innerHTML = ""; historyView.innerHTML = "";
-        let income = 0;
-
-        snap.forEach(child => {
-            const o = child.val();
-            const itemsHtml = o.items_list.map(i => `${i.qty}x ${i.name}`).join(", ");
-            const noteHtml = o.note ? `<div class="note">📝 ${o.note}</div>` : "";
+            const imgSrc = p.img ? p.img : "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg";
             
-            const ticket = `
-                <div class="ticket ${o.status === 'Done' ? 'history' : ''}">
-                    <span class="badge">${o.status}</span>
-                    <a href="tel:${o.phone}" class="phone-link">📞 ${o.phone}</a>
-                    <div style="font-size:13px; color:#555;">${itemsHtml}</div>
-                    ${noteHtml}
-                    <div style="margin-top:10px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-                        <span>${o.total.toFixed(2)} DA</span>
-                        <button onclick="manageOrder('${child.key}', '${o.status}')" style="background:#eee; border:1px solid #ccc; border-radius:4px; padding:5px 10px; cursor:pointer;">
-                            ${o.status === 'Pending' ? 'Complete ✅' : 'Delete 🗑️'}
-                        </button>
-                    </div>
-                    <div style="font-size:10px; color:#999; margin-top:5px;">${o.timestamp}</div>
-                </div>`;
+            // CHECK AVAILABILITY
+            const isAvailable = p.available !== false; 
 
-            if(o.status === 'Pending') { liveView.innerHTML += ticket; } 
-            else { historyView.innerHTML += ticket; income += o.total; }
+            grid.innerHTML += `
+                <div class="pizza-card ${!isAvailable ? 'out' : ''}">
+                    <img src="${imgSrc}" class="pizza-img">
+                    <h3>${p.name}</h3>
+                    <div style="font-weight:bold; margin-bottom:10px;">${p.price.toFixed(2)} DA</div>
+                    ${isAvailable 
+                        ? `<button class="btn-add" onclick="addToCart('${p.name}', ${p.price})">Add</button>` 
+                        : `<button class="btn-out" disabled>Sold Out</button>`
+                    }
+                </div>`;
         });
-        document.getElementById('total-income').innerText = income.toFixed(2) + " DA";
     });
 
-    window.manageOrder = (id, status) => {
-        if(status === 'Pending') {
-            if(confirm("Move to history?")) update(ref(db, `orders/${id}`), { status: 'Done' });
-        } else {
-            if(confirm("Delete forever?")) remove(ref(db, `orders/${id}`));
-        }
+    window.toggleCart = () => { document.getElementById('cart-panel').style.display = (document.getElementById('cart-panel').style.display === 'block' ? 'none' : 'block'); };
+
+    window.addToCart = (name, price) => {
+        const item = cart.find(i => i.name === name);
+        item ? item.qty++ : cart.push({name, price, qty: 1});
+        updateCartUI();
+        document.getElementById('cart-panel').style.display = 'block';
     };
 
-    window.takeWalkInOrder = () => {
-        const phone = prompt("Name/Phone:");
-        const amount = prompt("Total DA:");
-        if(phone && amount) {
-            push(ref(db, 'orders'), {
-                phone: phone, items_list: [{name: "Walk-in", qty: 1}],
-                total: parseFloat(amount), status: "Done",
-                timestamp: new Date().toLocaleTimeString(), note: "In-store"
-            });
-        }
+    window.changeQty = (name, d) => {
+        const i = cart.find(x => x.name === name);
+        if(i) { i.qty += d; if(i.qty <= 0) cart = cart.filter(x => x.name !== name); }
+        updateCartUI();
     };
 
-    window.toggleStock = (id, s) => update(ref(db, `pizzas/${id}`), { available: !s });
-    window.del = (path) => { if(confirm("Delete?")) remove(ref(db, path)); };
+    function updateCartUI() {
+        const d = document.getElementById('cart-items-display');
+        const totalEl = document.getElementById('cart-summary-total');
+        d.innerHTML = ""; let total = 0;
+        cart.forEach(i => {
+            total += (i.price * i.qty);
+            d.innerHTML += `<div class="cart-item"><span>${i.name}</span><div><button class="qty-btn" onclick="changeQty('${i.name}', -1)">-</button> ${i.qty} <button class="qty-btn" onclick="changeQty('${i.name}', 1)">+</button></div></div>`;
+        });
+        totalEl.innerText = total.toFixed(2) + " DA";
+        if(cart.length === 0) document.getElementById('cart-panel').style.display = 'none';
+    }
+
+    window.confirmOrder = () => {
+        const phone = document.getElementById('cust-phone').value;
+        if(!phone || cart.length === 0) return alert("Details missing!");
+        if(!confirm("Place order?")) return;
+
+        push(ref(db, 'orders'), {
+            phone, items_list: cart, note: document.getElementById('order-note').value,
+            total: cart.reduce((s,i) => s+(i.price*i.qty), 0),
+            status: "Pending", 
+            timestamp: new Date().toLocaleTimeString(),
+            reduction: 0 // Initialize reduction as 0 for the manager to modify later
+        }).then(() => {
+            alert("Success!"); cart = []; updateCartUI();
+            document.getElementById('order-note').value = "";
+            document.getElementById('cust-phone').value = "";
+        });
+    };
 </script>
 </body>
 </html>
