@@ -5,83 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capitano POS - Manager</title>
     <style>
-        :root { 
-            --pos-blue: #1976d2; 
-            --pos-bg: #f4f7f9;
-            --sidebar-bg: #ffffff;
-            --text-main: #2c3e50;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; height: 100vh; background: var(--pos-bg); overflow: hidden; }
+        :root { --pos-blue: #1976d2; --pos-bg: #f4f7f9; --sidebar-bg: #fff; }
+        body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; background: var(--pos-bg); overflow: hidden; }
+        
+        /* Layout Sections */
+        .main-content { flex: 2; padding: 20px; overflow-y: auto; border-right: 2px solid #ddd; }
+        .sidebar { flex: 1; display: flex; flex-direction: column; background: var(--sidebar-bg); }
+        
+        /* Tabs for History/Current */
+        .tabs { display: flex; background: #eee; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; }
+        .tab.active { background: white; border-bottom-color: var(--pos-blue); color: var(--pos-blue); }
 
-        /* LEFT SIDE: MENU MANAGEMENT */
-        .main-content { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
-        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        /* Product Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .admin-card { background: white; border-radius: 12px; padding: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;}
+        .admin-card img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; }
         
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .admin-card { background: white; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .admin-card img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
-        .admin-card h3 { margin: 5px 0; font-size: 14px; color: var(--text-main); }
-        
-        /* RIGHT SIDE: ORDER SIDEBAR (Like your image) */
-        .order-sidebar { width: 380px; background: var(--sidebar-bg); border-left: 1px solid #ddd; display: flex; flex-direction: column; box-shadow: -2px 0 10px rgba(0,0,0,0.05); }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .order-list { flex: 1; overflow-y: auto; padding: 10px; }
-        
-        .order-ticket { background: #fff; border: 1px solid #eee; border-left: 5px solid var(--pos-blue); border-radius: 6px; padding: 15px; margin-bottom: 10px; font-size: 14px; position: relative;}
-        .order-ticket .phone { font-weight: bold; color: var(--pos-blue); margin-bottom: 5px; display: block; }
-        .order-ticket .items { color: #555; line-height: 1.4; }
-        
-        /* TOTAL SECTION (Bottom Right) */
-        .summary-footer { padding: 20px; border-top: 1px solid #eee; background: #fafafa; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #777; }
-        .total-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 24px; font-weight: bold; color: var(--pos-blue); }
-        
-        .btn-pay { background: var(--pos-blue); color: white; border: none; width: 100%; padding: 18px; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 15px; cursor: pointer; }
-        
-        /* ADD NEW PIZZA FORM */
-        .add-form { background: #eef2f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; }
-        .add-form input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-save { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; }
+        /* Forms */
+        .add-form { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        input, select { padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        .btn-save { background: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        .btn-stock { padding: 5px 10px; border-radius: 4px; border: none; font-size: 10px; text-transform: uppercase; cursor: pointer; margin-top: 5px;}
-        .btn-delete { color: #e74c3c; background: none; border: none; cursor: pointer; font-size: 12px; margin-top: 10px;}
+        /* Order Tickets */
+        .order-list { flex: 1; overflow-y: auto; padding: 15px; }
+        .ticket { background: #f9f9f9; border-left: 5px solid var(--pos-blue); padding: 15px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; position: relative;}
+        .ticket.history { border-left-color: #95a5a6; }
+        .note { background: #fff9c4; padding: 5px; font-size: 12px; margin-top: 5px; border-radius: 4px; border: 1px border #fbc02d; }
+
+        .badge { background: var(--pos-blue); color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        .income-bar { padding: 20px; background: #2c3e50; color: white; text-align: center; }
+        
+        #preview-img { width: 50px; height: 50px; border-radius: 50%; display: none; margin-top: 10px;}
     </style>
 </head>
 <body>
 
     <div class="main-content">
-        <div class="header-bar">
-            <h2>🍕 Menu Management</h2>
-            <span>Status: <strong style="color:green">Online</strong></span>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>🍕 Pizza Management</h2>
+            <button onclick="takeWalkInOrder()" style="background:var(--pos-blue); color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:bold;">+ Walk-in Order</button>
         </div>
 
         <div class="add-form">
-            <input type="text" id="p-name" placeholder="Pizza Name (e.g. Hawaiian)">
-            <input type="number" id="p-price" placeholder="Price ($)">
-            <button class="btn-save" onclick="savePizza()">+ Add Product</button>
+            <h4 style="margin-top:0">Add New Product</h4>
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1">
+                    <input type="text" id="p-name" placeholder="Name (e.g. Seafood)">
+                    <input type="number" id="p-price" placeholder="Price (DA)">
+                </div>
+                <div style="flex:1; text-align:center;">
+                    <label style="font-size:12px; color:#666; cursor:pointer; background:#eee; padding:10px; display:block; border-radius:6px;">
+                        📸 Upload Photo
+                        <input type="file" id="p-image" accept="image/*" style="display:none" onchange="previewImage(this)">
+                    </label>
+                    <img id="preview-img">
+                </div>
+            </div>
+            <button class="btn-save" onclick="savePizza()">Save Product</button>
         </div>
 
-        <div class="grid-container" id="inventory-grid">
-            </div>
+        <div class="grid" id="inventory-grid"></div>
     </div>
 
-    <div class="order-sidebar">
-        <div class="sidebar-header">
-            <h3 style="margin:0">Delivery Orders</h3>
-            <span id="order-count" style="background:#eee; padding:2px 8px; border-radius:10px; font-size:12px">0</span>
+    <div class="sidebar">
+        <div class="tabs">
+            <div class="tab active" id="tab-live" onclick="showTab('live')">Live Orders</div>
+            <div class="tab" id="tab-history" onclick="showTab('history')">History</div>
         </div>
 
-        <div class="order-list" id="active-orders">
-            </div>
+        <div id="live-orders-view" class="order-list"></div>
+        <div id="history-view" class="order-list" style="display:none"></div>
 
-        <div class="summary-footer">
-            <div class="summary-row"><span>Subtotal</span><span id="sub-total">$0.00</span></div>
-            <div class="summary-row"><span>Estimated Tax (5%)</span><span id="tax-total">$0.00</span></div>
-            <div class="total-row">
-                <span>Total</span>
-                <span id="grand-total">$0.00</span>
-            </div>
-            <p style="font-size: 11px; color: #999; text-align: center; margin-top: 10px;">Select an order above to clear it</p>
+        <div class="income-bar">
+            <small>Total Sales Today</small>
+            <div id="total-income" style="font-size:24px; font-weight:bold;">0.00 DA</div>
         </div>
     </div>
 
@@ -89,46 +87,52 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    const firebaseConfig = {
+    const conf = {
         apiKey: "AIzaSyBFsq2X7dNWDzUTM0YIXfocEwu98Ec8oSM",
-        authDomain: "capitano-13.firebaseapp.com",
-        projectId: "capitano-13",
         databaseURL: "https://capitano-13-default-rtdb.europe-west1.firebasedatabase.app/",
-        appId: "1:244607757500:web:3ab7c1bdec458bba5cb4b9"
+        projectId: "capitano-13"
+    };
+    const app = initializeApp(conf);
+    const db = getDatabase(app);
+    let currentImageBase64 = "";
+
+    // --- TAB LOGIC ---
+    window.showTab = (type) => {
+        document.getElementById('live-orders-view').style.display = type === 'live' ? 'block' : 'none';
+        document.getElementById('history-view').style.display = type === 'history' ? 'block' : 'none';
+        document.getElementById('tab-live').classList.toggle('active', type === 'live');
+        document.getElementById('tab-history').classList.toggle('active', type === 'history');
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    // --- IMAGE PREVIEW ---
+    window.previewImage = (input) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            currentImageBase64 = e.target.result;
+            document.getElementById('preview-img').src = currentImageBase64;
+            document.getElementById('preview-img').style.display = 'inline-block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    };
 
-    // 1. WATCH ORDERS (The Sidebar Logic)
-    onValue(ref(db, 'orders'), (snap) => {
-        const list = document.getElementById('active-orders');
-        list.innerHTML = "";
-        let runningTotal = 0;
-        let count = 0;
+    // --- SAVE PRODUCT ---
+    window.savePizza = () => {
+        const name = document.getElementById('p-name').value;
+        const price = parseFloat(document.getElementById('p-price').value);
+        if(!name || !price) return alert("Fill all fields");
 
-        snap.forEach(child => {
-            const o = child.val();
-            count++;
-            runningTotal += parseFloat(o.total);
-            
-            list.innerHTML += `
-                <div class="order-ticket" onclick="completeOrder('${child.key}')">
-                    <span class="phone">📞 ${o.phone}</span>
-                    <div class="items">${o.items_list.map(i => i.name).join(", ")}</div>
-                    <div style="margin-top:8px; font-weight:bold">$${o.total.toFixed(2)}</div>
-                    <small style="color:#999">${o.timestamp}</small>
-                </div>`;
+        push(ref(db, 'pizzas'), {
+            name, price, available: true,
+            img: currentImageBase64 || "https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg"
+        }).then(() => {
+            document.getElementById('p-name').value = "";
+            document.getElementById('p-price').value = "";
+            document.getElementById('preview-img').style.display = 'none';
+            currentImageBase64 = "";
         });
+    };
 
-        // Update Summary bottom right
-        document.getElementById('order-count').innerText = count;
-        document.getElementById('sub-total').innerText = `$${runningTotal.toFixed(2)}`;
-        document.getElementById('tax-total').innerText = `$${(runningTotal * 0.05).toFixed(2)}`;
-        document.getElementById('grand-total').innerText = `$${(runningTotal * 1.05).toFixed(2)}`;
-    });
-
-    // 2. WATCH MENU (The Grid Logic)
+    // --- RENDER MENU ---
     onValue(ref(db, 'pizzas'), (snap) => {
         const grid = document.getElementById('inventory-grid');
         grid.innerHTML = "";
@@ -136,34 +140,78 @@
             const p = child.val();
             grid.innerHTML += `
                 <div class="admin-card">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg">
-                    <h3>${p.name}</h3>
-                    <strong>$${parseFloat(p.price).toFixed(2)}</strong><br>
-                    <button class="btn-stock" style="background:${p.available ? '#27ae60':'#95a5a6'}; color:white" 
-                        onclick="toggleStock('${child.key}', ${p.available})">
-                        ${p.available ? 'In Stock' : 'Sold Out'}
-                    </button><br>
-                    <button class="btn-delete" onclick="deleteItem('pizzas/${child.key}')">Remove Item</button>
+                    <img src="${p.img}">
+                    <h4>${p.name}</h4>
+                    <strong>${p.price} DA</strong><br>
+                    <button onclick="toggleStock('${child.key}', ${p.available})" style="background:${p.available?'#27ae60':'#999'}; color:white; border:none; border-radius:4px; font-size:10px; margin-top:5px; cursor:pointer;">
+                        ${p.available?'In Stock':'Out'}
+                    </button>
+                    <button onclick="del('pizzas/${child.key}')" style="color:red; background:none; border:none; display:block; width:100%; font-size:10px; margin-top:5px;">Delete</button>
                 </div>`;
         });
     });
 
-    // 3. ACTIONS
-    window.savePizza = () => {
-        const name = document.getElementById('p-name').value;
-        const price = parseFloat(document.getElementById('p-price').value);
-        if(name && price) {
-            push(ref(db, 'pizzas'), { name, price, available: true });
-            document.getElementById('p-name').value = "";
-            document.getElementById('p-price').value = "";
+    // --- RENDER ORDERS & HISTORY ---
+    onValue(ref(db, 'orders'), (snap) => {
+        const liveView = document.getElementById('live-orders-view');
+        const historyView = document.getElementById('history-view');
+        liveView.innerHTML = ""; historyView.innerHTML = "";
+        let income = 0;
+
+        snap.forEach(child => {
+            const o = child.val();
+            const itemsHtml = o.items_list.map(i => `${i.qty}x ${i.name}`).join(", ");
+            const noteHtml = o.note ? `<div class="note">📝 ${o.note}</div>` : "";
+            
+            const ticket = `
+                <div class="ticket ${o.status === 'Done' ? 'history' : ''}" onclick="manageOrder('${child.key}', '${o.status}')">
+                    <span class="badge">${o.status}</span>
+                    <strong style="display:block; margin:5px 0;">📞 ${o.phone}</strong>
+                    <div style="font-size:13px; color:#555;">${itemsHtml}</div>
+                    ${noteHtml}
+                    <div style="margin-top:10px; font-weight:bold; display:flex; justify-content:space-between;">
+                        <span>Total: ${o.total.toFixed(2)} DA</span>
+                        <small style="color:#999">${o.timestamp}</small>
+                    </div>
+                </div>`;
+
+            if(o.status === 'Pending') {
+                liveView.innerHTML += ticket;
+            } else {
+                historyView.innerHTML += ticket;
+                income += o.total;
+            }
+        });
+        document.getElementById('total-income').innerText = income.toFixed(2) + " DA";
+    });
+
+    // --- ACTIONS ---
+    window.manageOrder = (id, status) => {
+        if(status === 'Pending') {
+            if(confirm("Complete this order and move to history?")) update(ref(db, `orders/${id}`), { status: 'Done' });
+        } else {
+            if(confirm("Delete this order from history forever?")) remove(ref(db, `orders/${id}`));
         }
     };
 
-    window.toggleStock = (id, status) => update(ref(db, `pizzas/${id}`), { available: !status });
-    window.completeOrder = (id) => { if(confirm("Mark order as completed?")) remove(ref(db, `orders/${id}`)); };
-    window.deleteItem = (path) => { if(confirm("Delete this pizza forever?")) remove(ref(db, path)); };
+    window.takeWalkInOrder = () => {
+        const phone = prompt("Customer Name or Phone:");
+        const amount = prompt("Total Amount (DA):");
+        if(phone && amount) {
+            push(ref(db, 'orders'), {
+                phone: phone,
+                items_list: [{name: "Walk-in Order", qty: 1}],
+                total: parseFloat(amount),
+                status: "Done",
+                timestamp: new Date().toLocaleTimeString(),
+                note: "Over-the-counter sale"
+            });
+        }
+    };
+
+    window.toggleStock = (id, s) => update(ref(db, `pizzas/${id}`), { available: !s });
+    window.del = (path) => { if(confirm("Delete this?")) remove(ref(db, path)); };
 
 </script>
 </body>
 </html>
-
